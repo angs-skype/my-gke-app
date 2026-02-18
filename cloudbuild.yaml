@@ -32,3 +32,6 @@ steps:
         git config user.name "cloudbuild"
         git commit -am "Update image to $SHORT_SHA"
         git push
+
+  options:
+  logging: CLOUD_LOGGING_ONLY
