@@ -18,7 +18,7 @@ steps:
       - push
       - us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA
 
-  # 4️⃣ Update GitOps repo
+  # 4️⃣ Update GitOps repooo
   - name: alpine/git
     entrypoint: sh
     secretEnv: ["GITHUB_TOKEN"]
