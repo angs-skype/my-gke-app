@@ -1,5 +1,5 @@
 steps:
-  # 1️⃣ Build Java app
+  # 1️⃣ Build app
   - name: maven:3.9.6-eclipse-temurin-17
     entrypoint: mvn
     args: ["clean", "package"]
@@ -7,28 +7,25 @@ steps:
   # 2️⃣ Build Docker image
   - name: gcr.io/cloud-builders/docker
     args:
-      [
-        "build",
-        "-t",
-        "us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA",
-        "."
-      ]
+      - build
+      - -t
+      - us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA
+      - .
 
-  # 3️⃣ Push Docker image
+  # 3️⃣ Push image
   - name: gcr.io/cloud-builders/docker
     args:
-      [
-        "push",
-        "us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA"
-      ]
+      - push
+      - us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA
 
-  # 4️⃣ Update GitOps repo ggg
+  # 4️⃣ Update GitOps repo
   - name: alpine/git
     entrypoint: sh
+    secretEnv: ["GITHUB_TOKEN"]
     args:
       - -c
       - |
-        git clone https://$GITHUB_TOKEN@github.com/angs-skype/hello-gitops.git
+        git clone https://$$GITHUB_TOKEN@github.com/angs-skype/hello-gitops.git
         cd hello-gitops
         sed -i "s|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA|" deployment.yaml
         git config user.email "ci@cloudbuild"
@@ -37,7 +34,12 @@ steps:
         git push
 
 images:
-  - "us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA"
+  - us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/github-token/versions/latest
+      env: GITHUB_TOKEN
 
 options:
   logging: CLOUD_LOGGING_ONLY
