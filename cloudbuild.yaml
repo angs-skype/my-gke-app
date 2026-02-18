@@ -28,7 +28,7 @@ steps:
     args:
       - -c
       - |
-        git clone https://$GITHUB_TOKEN@github.com/angs-skype/hello-gitops.git
+        git clone https://github.com/angs-skype/hello-gitops.git
         cd hello-gitops
         sed -i "s|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA|" deployment.yaml
         git config user.email "ci@cloudbuild"
