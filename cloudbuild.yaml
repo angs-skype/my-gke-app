@@ -1,8 +1,10 @@
 steps:
+  # 1️⃣ Build Java app
   - name: maven:3.9.6-eclipse-temurin-17
     entrypoint: mvn
     args: ["clean", "package"]
 
+  # 2️⃣ Build Docker image
   - name: gcr.io/cloud-builders/docker
     args:
       [
@@ -12,6 +14,7 @@ steps:
         "."
       ]
 
+  # 3️⃣ Push Docker image
   - name: gcr.io/cloud-builders/docker
     args:
       [
@@ -19,13 +22,13 @@ steps:
         "us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA"
       ]
 
-  # Update GitOps repo with new image tag
+  # 4️⃣ Update GitOps repo ggg
   - name: alpine/git
     entrypoint: sh
     args:
       - -c
       - |
-        git clone https://github.com/angs-skype/hello-gitops.git
+        git clone https://$GITHUB_TOKEN@github.com/angs-skype/hello-gitops.git
         cd hello-gitops
         sed -i "s|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA|" deployment.yaml
         git config user.email "ci@cloudbuild"
@@ -33,5 +36,8 @@ steps:
         git commit -am "Update image to $SHORT_SHA"
         git push
 
-  - options:
-      logging: CLOUD_LOGGING_ONLY
+images:
+  - "us-central1-docker.pkg.dev/$PROJECT_ID/hello-repo/hello-app:$SHORT_SHA"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
